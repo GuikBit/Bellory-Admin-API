@@ -1,0 +1,77 @@
+name: CI/CD Admin API - Spring Boot
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    name: Build & Deploy Admin API
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar SSH Agent
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Adicionar servidor aos Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Build no Servidor Remoto
+        run: |
+          REPO_URL="git@github.com:GuikBit/Bellory-Admin-API.git"
+          TARGET_DIR="/var/runner/api-admin"
+
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
+            set -e
+
+            if [ -d "$TARGET_DIR/.git" ]; then
+              echo "--- Repositório existe. Atualizando..."
+              cd "$TARGET_DIR"
+              git checkout main
+              git reset --hard
+              git clean -fd
+              git pull origin main
+            else
+              echo "--- Clonando repositório..."
+              mkdir -p "$(dirname "$TARGET_DIR")"
+              git clone -b main "$REPO_URL" "$TARGET_DIR"
+              cd "$TARGET_DIR"
+            fi
+
+            echo "--- Iniciando build Maven..."
+            mvn clean package -DskipTests
+          EOF
+
+      - name: Deploy e Reinício do Serviço
+        run: |
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
+            set -e
+            echo "--- Preparando a pasta de produção do admin..."
+
+            # Garante que a pasta de produção exista, sem apagar nada
+            mkdir -p /opt/api-admin
+
+            # Apaga APENAS os arquivos antigos que serão substituídos, preservando o .env
+            rm -f /opt/api-admin/docker-compose.yml /opt/api-admin/Dockerfile /opt/api-admin/*.jar
+
+            # Copia os arquivos novos do build
+            cp /var/runner/api-admin/docker-compose.yml /opt/api-admin/
+            cp /var/runner/api-admin/Dockerfile /opt/api-admin/
+            cp /var/runner/api-admin/target/Bellory-Admin-*.jar /opt/api-admin/app.jar
+
+            # Reinicia os containers
+            cd /opt/api-admin
+            docker system prune -f
+            docker compose down
+            docker compose up -d --build
+
+            echo "--- Deploy admin concluído com sucesso!"
+          EOF

@@ -16,7 +16,7 @@ Painel administrativo da plataforma Bellory. Projeto Spring Boot independente do
 
 ## Ambientes
 
-- **Dev local**: roda em `localhost:8082` (Bellory-API roda em `localhost:8081`). **Nao ha ambiente dev hospedado.**
+- **Dev local**: roda em `localhost:8085` (Bellory-API roda em `localhost:8081`). **Nao ha ambiente dev hospedado.**
 - **Prod**: `api-admin.bellory.com.br`
 
 ## Pre-requisitos

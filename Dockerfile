@@ -8,6 +8,6 @@ RUN mkdir -p /var/bellory-admin/dev/uploads /var/bellory-admin/prod/uploads && \
 
 COPY app.jar app.jar
 
-EXPOSE 8082
+EXPOSE 8085
 
 ENTRYPOINT ["java", "--enable-preview", "-jar", "app.jar"]
