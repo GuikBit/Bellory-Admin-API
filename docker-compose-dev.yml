@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    container_name: bellory_admin_api_dev
+    ports:
+      - "8082:8082"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    volumes:
+      - /var/bellory-admin/dev/uploads:/var/bellory-admin/dev/uploads
+
+    env_file:
+      - .env
+
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SERVER_PORT=8082
+      - DB_USER=${DB_DEV_USER}
+      - DB_PASS=${DB_DEV_PASSWORD}
+      - SECURITY_JWT_SIGNING_KEY=${SECURITY_JWT_SECRET}
+
+    restart: unless-stopped
+
+volumes:
+  uploads_admin_dev:
+    driver: local

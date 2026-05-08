@@ -1,0 +1,19 @@
+# Maven build
+target/
+
+# Logs e env
+*.log
+.env
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.class
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads locais (nao commitar)
+uploads/
