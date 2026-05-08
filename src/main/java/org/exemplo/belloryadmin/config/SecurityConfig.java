@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * <ul>
  *   <li>{@code /api/v1/admin/auth/**} - publico (login admin)</li>
  *   <li>{@code /api/v1/tracking} - publico (ingestao do site bellory.com.br)</li>
+ *   <li>{@code /api/contato} - publico (formulario de contato da landing page)</li>
  *   <li>{@code /api/v1/webhook/payment} - publico (Payment API valida via token proprio)</li>
  *   <li>{@code /api/v1/admin/**} - exige role PLATFORM_ADMIN</li>
  *   <li>{@code /swagger-ui/**}, {@code /v3/api-docs/**}, {@code /actuator/**} - publicos</li>
@@ -59,6 +60,10 @@ public class SecurityConfig {
 
                                 // Tracking publico (site bellory.com.br)
                                 "/api/v1/tracking/**",
+
+                                // Formulario de contato publico (landing page)
+                                "/api/contato",
+                                "/api/contato/**",
 
                                 // Webhook Payment API (validado por token proprio do payload)
                                 "/api/v1/webhook/payment",
