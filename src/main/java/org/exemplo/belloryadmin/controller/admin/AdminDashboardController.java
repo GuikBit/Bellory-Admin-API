@@ -7,6 +7,7 @@ import org.exemplo.belloryadmin.model.dto.admin.AdminDashboardDTO;
 import org.exemplo.belloryadmin.service.admin.AdminDashboardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,10 +19,19 @@ public class AdminDashboardController {
 
     private final AdminDashboardService adminDashboardService;
 
-    @Operation(summary = "Obter dashboard geral", description = "Retorna metricas consolidadas de todas as organizacoes: totais, faturamento, distribuicao de planos, instancias, etc.")
+    @Operation(summary = "Obter dashboard geral",
+            description = "Retorna metricas consolidadas de todas as organizacoes agrupadas por dominio: " +
+                    "organizacoes, agendamentos, clientes, funcionarios, servicos, instancias, financeiro, " +
+                    "planos (Payment API), leads, top organizacoes e localizacoes. Resposta cacheada por alguns minutos.")
     @GetMapping
     public ResponseEntity<AdminDashboardDTO> getDashboard() {
-        AdminDashboardDTO dashboard = adminDashboardService.getDashboard();
-        return ResponseEntity.ok(dashboard);
+        return ResponseEntity.ok(adminDashboardService.getDashboard());
+    }
+
+    @Operation(summary = "Recalcular dashboard",
+            description = "Forca o recalculo do dashboard ignorando o cache e atualizando-o.")
+    @PostMapping("/refresh")
+    public ResponseEntity<AdminDashboardDTO> refreshDashboard() {
+        return ResponseEntity.ok(adminDashboardService.refreshDashboard());
     }
 }

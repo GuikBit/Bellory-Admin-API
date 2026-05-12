@@ -63,4 +63,28 @@ public interface LeadRepository extends JpaRepository<Lead, UUID> {
      * inativacao de uma coluna do kanban.
      */
     long countByStatusIdAndDeletedAtIsNull(Long statusId);
+
+    // ==================== DASHBOARD ADMIN ====================
+
+    long countByDeletedAtIsNull();
+
+    long countByDeletedAtIsNullAndDtCriacaoBetween(LocalDateTime inicio, LocalDateTime fim);
+
+    @Query("SELECT COUNT(l) FROM Lead l JOIN l.status s WHERE l.deletedAt IS NULL AND s.ehStatusFinal = true")
+    long countEmStatusFinal();
+
+    @Query("SELECT s.nome, COUNT(l) FROM Lead l JOIN l.status s WHERE l.deletedAt IS NULL GROUP BY s.nome ORDER BY COUNT(l) DESC")
+    List<Object[]> countAgrupadosPorStatus();
+
+    @Query("SELECT l.tipoNegocio, COUNT(l) FROM Lead l WHERE l.deletedAt IS NULL GROUP BY l.tipoNegocio")
+    List<Object[]> countAgrupadosPorTipoNegocio();
+
+    @Query("SELECT l.prioridade, COUNT(l) FROM Lead l WHERE l.deletedAt IS NULL GROUP BY l.prioridade")
+    List<Object[]> countAgrupadosPorPrioridade();
+
+    @Query("SELECT l.origem, COUNT(l) FROM Lead l WHERE l.deletedAt IS NULL GROUP BY l.origem ORDER BY COUNT(l) DESC")
+    List<Object[]> countAgrupadosPorOrigem();
+
+    @Query("SELECT COALESCE(SUM(l.valorEstimado), 0) FROM Lead l WHERE l.deletedAt IS NULL")
+    java.math.BigDecimal sumValorEstimadoPipeline();
 }
